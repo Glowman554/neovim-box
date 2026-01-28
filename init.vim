@@ -18,6 +18,8 @@ Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
 Plug 'numToStr/Comment.nvim'
 
+Plug 'github/copilot.vim'
+
 "themes
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
