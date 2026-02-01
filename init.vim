@@ -19,18 +19,18 @@ Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'numToStr/Comment.nvim'
 
 Plug 'github/copilot.vim'
+Plug 'vimsence/vimsence'
 
 "themes
-Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
-
 Plug 'tomasiser/vim-code-dark'
+Plug 'thedenisnikulin/vim-cyberpunk'
+Plug 'navarasu/onedark.nvim'
+Plug 'EdenEast/nightfox.nvim'
+
 
 call plug#end()
 
-colors codedark
-let g:airline_theme = 'codedark'
-
+colors duskfox
 
 " Start NERDTree and put the cursor back in the other window.
 autocmd VimEnter * NERDTree | wincmd p
