@@ -72,5 +72,7 @@ nmap <silent> gr <Plug>(coc-references)
 
 nnoremap <silent> K :call CocActionAsync('doHover')<CR>
 
+tnoremap <Esc> <C-\><C-n>
+
 " go stuff
 autocmd BufWritePre *.go :silent call CocAction('runCommand', 'editor.action.organizeImport')
