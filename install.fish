@@ -21,7 +21,7 @@ nvim +'CocInstall -sync coc-go' +qa
 go install golang.org/x/tools/gopls@latest
 
 # C
-sudo apt install build-essential clang clangd meson cmake -y
+sudo apt install build-essential clang clangd meson cmake gdb -y
 nvim +'CocInstall -sync coc-clangd' +qa
 
 # MicroOS
