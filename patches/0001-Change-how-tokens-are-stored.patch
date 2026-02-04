@@ -1,0 +1,192 @@
+From 66bd8587c60dcf6d89f3d3a2671ad951e68d2623 Mon Sep 17 00:00:00 2001
+From: Glowman554 <vossjanick62@gmail.com>
+Date: Wed, 4 Feb 2026 13:27:47 +0000
+Subject: [PATCH] Change how tokens are stored
+
+---
+ internal/keyring/keyring.go      |  39 +++++++++--
+ internal/keyring/keyring_test.go | 109 -------------------------------
+ 2 files changed, 35 insertions(+), 113 deletions(-)
+ delete mode 100644 internal/keyring/keyring_test.go
+
+diff --git a/internal/keyring/keyring.go b/internal/keyring/keyring.go
+index d4d77db..7b39c9c 100644
+--- a/internal/keyring/keyring.go
++++ b/internal/keyring/keyring.go
+@@ -1,8 +1,10 @@
+ package keyring
+ 
+ import (
++	"io/fs"
++	"os"
++
+ 	"github.com/ayn2op/discordo/internal/consts"
+-	"github.com/zalando/go-keyring"
+ )
+ 
+ const (
+@@ -10,14 +12,43 @@ const (
+ 	keyringUser    = "token"
+ )
+ 
++func getTokenFile() (string, error) {
++    dirname, err := os.UserHomeDir()
++    if err != nil {
++        return "", err
++    }
++
++    return dirname + "/.discord-token", nil
++}
++
+ func GetToken() (string, error) {
+-	return keyring.Get(keyringService, keyringUser)
++    tokenFile, err := getTokenFile()
++    if err != nil {
++        return "", err
++    }
++
++    token, err := os.ReadFile(tokenFile)
++    if err != nil {
++        return "", err 
++    }
++    
++    return string(token), nil
+ }
+ 
+ func SetToken(s string) error {
+-	return keyring.Set(keyringService, keyringUser, s)
++    tokenFile, err := getTokenFile()
++    if err != nil {
++        return err 
++    }
++
++    return os.WriteFile(tokenFile, []byte(s), fs.ModePerm)
+ }
+ 
+ func DeleteToken() error {
+-	return keyring.Delete(keyringService, keyringUser)
++    tokenFile, err := getTokenFile()
++    if err != nil {
++        return err
++    }
++
++    return os.Remove(tokenFile)
+ }
+diff --git a/internal/keyring/keyring_test.go b/internal/keyring/keyring_test.go
+deleted file mode 100644
+index 4b3cff5..0000000
+--- a/internal/keyring/keyring_test.go
++++ /dev/null
+@@ -1,109 +0,0 @@
+-package keyring
+-
+-import (
+-	"errors"
+-	"testing"
+-
+-	zkeyring "github.com/zalando/go-keyring"
+-)
+-
+-const testToken = "abc123"
+-
+-var testErr = errors.New("boom")
+-
+-func TestSetToken(t *testing.T) {
+-	t.Run("success", func(t *testing.T) {
+-		zkeyring.MockInit()
+-
+-		if err := SetToken(testToken); err != nil {
+-			t.Fatal(err)
+-		}
+-
+-		got, err := GetToken()
+-		if err != nil {
+-			t.Fatal(err)
+-		}
+-
+-		if got != testToken {
+-			t.Fatalf("got = %q, want = %q", got, testToken)
+-		}
+-	})
+-
+-	t.Run("error", func(t *testing.T) {
+-		zkeyring.MockInitWithError(testErr)
+-
+-		if err := SetToken(testToken); err == nil {
+-			t.Fatal("expected error")
+-		}
+-	})
+-}
+-
+-func TestGetToken(t *testing.T) {
+-	t.Run("success", func(t *testing.T) {
+-		zkeyring.MockInit()
+-
+-		if err := zkeyring.Set(keyringService, keyringUser, testToken); err != nil {
+-			t.Fatal(err)
+-		}
+-
+-		got, err := GetToken()
+-		if err != nil {
+-			t.Fatal(err)
+-		}
+-		if got != testToken {
+-			t.Fatalf("got = %q, want = %q", got, testToken)
+-		}
+-	})
+-
+-	t.Run("not found", func(t *testing.T) {
+-		zkeyring.MockInit()
+-
+-		_, err := GetToken()
+-		if !errors.Is(err, zkeyring.ErrNotFound) {
+-			t.Fatalf("got = %v, want = %v", err, zkeyring.ErrNotFound)
+-		}
+-	})
+-
+-	t.Run("error", func(t *testing.T) {
+-		zkeyring.MockInitWithError(testErr)
+-
+-		if _, err := GetToken(); err == nil {
+-			t.Fatal("expected error")
+-		}
+-	})
+-}
+-
+-func TestDeleteToken(t *testing.T) {
+-	t.Run("success", func(t *testing.T) {
+-		zkeyring.MockInit()
+-
+-		if err := zkeyring.Set(keyringService, keyringUser, testToken); err != nil {
+-			t.Fatal(err)
+-		}
+-
+-		if err := DeleteToken(); err != nil {
+-			t.Fatal(err)
+-		}
+-
+-		_, err := GetToken()
+-		if !errors.Is(err, zkeyring.ErrNotFound) {
+-			t.Fatalf("got = %v, want = %v", err, zkeyring.ErrNotFound)
+-		}
+-	})
+-
+-	t.Run("not found", func(t *testing.T) {
+-		zkeyring.MockInit()
+-
+-		if err := DeleteToken(); !errors.Is(err, zkeyring.ErrNotFound) {
+-			t.Fatalf("got = %v, want = %v", err, zkeyring.ErrNotFound)
+-		}
+-	})
+-
+-	t.Run("error", func(t *testing.T) {
+-		zkeyring.MockInitWithError(testErr)
+-
+-		if err := DeleteToken(); err == nil {
+-			t.Fatal("expected error")
+-		}
+-	})
+-}
+-- 
+2.43.0
+
