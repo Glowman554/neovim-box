@@ -74,5 +74,7 @@ nnoremap <silent> K :call CocActionAsync('doHover')<CR>
 
 tnoremap <Esc> <C-\><C-n>
 
+:command -nargs=1 School set spell | set spelllang=<args> | set wrap
+
 " go stuff
 autocmd BufWritePre *.go :silent call CocAction('runCommand', 'editor.action.organizeImport')

@@ -10,10 +10,6 @@ nvim +'CocInstall -sync coc-css' +qa
 # Deno
 curl -fsSL https://deno.land/install.sh | sh
 
-# Java
-sudo apt install maven openjdk-21-jdk -y
-nvim +'CocInstall -sync coc-java' +qa
-
 # GO
 sudo apt install golang-go -y
 echo "fish_add_path ~/go/bin" >> ~/.config/fish/config.fish
@@ -24,5 +20,6 @@ go install golang.org/x/tools/gopls@latest
 sudo apt install build-essential clang clangd meson cmake gdb -y
 nvim +'CocInstall -sync coc-clangd' +qa
 
-# MicroOS
-sudo apt install xorriso mtools grub-pc-bin gcc-i686-linux-gnu qemu-system-x86 nasm -y
+# Project creation script
+cp tools/create-project.fish ~/go/bin/create-project
+chmod +x ~/go/bin/create-project
